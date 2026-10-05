@@ -1,0 +1,42 @@
+name: Run beginner lessons
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-env:
+    name: Verify Environment
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Run beginner preflight check
+        run: python3 phases/00-setup-and-tooling/01-dev-environment/code/verify.py --route beginner
+
+  run-lessons:
+    name: Run Lessons
+    needs: verify-env
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.11'
+      - name: Install early math dependencies
+        run: python3 -m pip install numpy==2.2.6 matplotlib==3.10.3
+      - name: Run Linear Algebra Intuition
+        run: python3 phases/01-math-foundations/01-linear-algebra-intuition/code/vectors.py
